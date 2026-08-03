@@ -1,9 +1,12 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { env } from "cloudflare:workers";
 
 export type ChatGPTUser = { displayName: string; email: string; fullName: string | null };
 
-const ADMIN_EMAIL = "anterahmed818@gmail.com";
+function adminEmails(): Set<string> {
+  return new Set(String(env.ADMIN_EMAILS ?? "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean));
+}
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   const requestHeaders = await headers();
@@ -21,11 +24,11 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
 export async function requireAdmin(returnTo = "/admin"): Promise<ChatGPTUser> {
   const user = await getChatGPTUser();
   if (!user) redirect(`/signin-with-chatgpt?return_to=${encodeURIComponent(returnTo)}`);
-  if (user.email !== ADMIN_EMAIL) redirect("/admin/forbidden");
+  if (!adminEmails().has(user.email)) redirect("/admin/forbidden");
   return user;
 }
 
 export async function isAdmin(): Promise<boolean> {
   const user = await getChatGPTUser();
-  return user?.email === ADMIN_EMAIL;
+  return Boolean(user && adminEmails().has(user.email));
 }

@@ -26,7 +26,7 @@ test("dashboard and write endpoints require the server-side admin check", async 
   assert.match(collectionRoute, /isAdmin/);
   assert.match(itemRoute, /isAdmin/);
   assert.match(auth, /oai-authenticated-user-email/);
-  assert.match(auth, /anterahmed818@gmail\.com/);
+  assert.match(auth, /ADMIN_EMAILS/);
 });
 
 test("initial migration includes the current portfolio projects", async () => {
