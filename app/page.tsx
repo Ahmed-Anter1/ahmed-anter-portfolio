@@ -1,4 +1,6 @@
-const featuredProjects = [
+import { getPublishedProjects } from "./projects";
+
+const fallbackFeaturedProjects = [
   {
     title: "Sale Stock Guard",
     tag: "Sales · Inventory",
@@ -66,7 +68,7 @@ const caseStudies = [
   "Sensitive Data & Menu Security",
 ];
 
-const webProjects = [
+const fallbackWebProjects = [
   {
     title: "HR Management & Time Tracking System",
     type: "Full-Stack · Desktop",
@@ -117,7 +119,17 @@ const skills = [
   "MongoDB / Mongoose",
 ];
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  let storedProjects: Awaited<ReturnType<typeof getPublishedProjects>> = [];
+  let databaseAvailable = true;
+  try { storedProjects = await getPublishedProjects(); } catch { databaseAvailable = false; }
+  const odooProjects = storedProjects.filter((item) => item.category === "odoo");
+  const managedWebProjects = storedProjects.filter((item) => item.category === "web");
+  const aiProjects = storedProjects.filter((item) => item.category === "ai");
+  const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl })) : fallbackFeaturedProjects;
+  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl })) : fallbackWebProjects;
   return (
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
@@ -165,9 +177,9 @@ export default function Home() {
       </section>
 
       <section className="metrics shell" aria-label="Portfolio overview">
-        <div><strong>6</strong><span>Complete public addons</span></div>
+        <div><strong>{visibleOdooProjects.length}</strong><span>Complete public addons</span></div>
         <div><strong>14+</strong><span>Technical case studies</span></div>
-        <div><strong>4</strong><span>Selected web projects</span></div>
+        <div><strong>{visibleWebProjects.length}</strong><span>Selected web projects</span></div>
         <div><strong>1</strong><span>Medical AI platform</span></div>
       </section>
 
@@ -177,7 +189,7 @@ export default function Home() {
           <p>Independent portfolio implementations built to demonstrate real ERP problem-solving without exposing proprietary client code.</p>
         </div>
         <div className="projectGrid">
-          {featuredProjects.map((project, index) => (
+          {visibleOdooProjects.map((project, index) => (
             <article className="projectCard" key={project.title}>
               <div className="projectNumber">0{index + 1}</div>
               <p className="projectTag">{project.tag}</p>
@@ -206,7 +218,7 @@ export default function Home() {
           <p>Selected applications built with Node.js, Express.js, MongoDB, and React—from secured REST APIs to complete operational dashboards.</p>
         </div>
         <div className="webGrid">
-          {webProjects.map((project, index) => (
+          {visibleWebProjects.map((project, index) => (
             <article className="webCard" key={project.title}>
               <div className="webCardTop"><span>WEB / 0{index + 1}</span><small>{project.type}</small></div>
               <h3>{project.title}</h3>
@@ -217,6 +229,21 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {aiProjects.length > 0 && <section className="section shell webSection" id="ai-work">
+        <div className="sectionHead">
+          <div><p className="eyebrow"><span /> Artificial intelligence</p><h2>AI projects</h2></div>
+          <p>Selected AI-assisted products focused on practical, accessible user experiences.</p>
+        </div>
+        <div className="webGrid">
+          {aiProjects.map((project, index) => <article className="webCard" key={project.id}>
+            <div className="webCardTop"><span>AI / {String(index + 1).padStart(2, "0")}</span><small>{project.label}</small></div>
+            <h3>{project.title}</h3><p>{project.description}</p>
+            <ul>{project.stack.map((item) => <li key={item}>{item}</li>)}</ul>
+            {(project.repositoryUrl || project.liveUrl) && <a href={project.liveUrl || project.repositoryUrl} target="_blank" rel="noreferrer">View project <span>↗</span></a>}
+          </article>)}
+        </div>
+      </section>}
 
       <section className="section shell" id="about">
         <div className="aboutGrid">
