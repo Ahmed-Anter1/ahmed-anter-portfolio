@@ -1,0 +1,8 @@
+.adminTop > div button{border:1px solid var(--line);padding:8px 12px;border-radius:4px;font-size:11px;background:transparent;color:var(--text);cursor:pointer}
+.adminLoginPage{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 72% 5%,rgba(66,232,180,.12),transparent 30%),#080b0f}
+.loginCard{width:min(470px,100%);padding:44px;border:1px solid var(--line);background:rgba(14,20,27,.96);box-shadow:0 32px 100px rgba(0,0,0,.38)}
+.loginCard>.brand{margin-bottom:46px}.loginCard h1{font-size:44px;line-height:1.05;letter-spacing:-.04em;margin:0}.loginCard>p:not(.eyebrow){color:var(--muted);margin:15px 0 28px}
+.loginCard form{display:grid;gap:17px}.loginCard form label{display:grid;gap:7px;color:#bac5c3;font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.loginCard input{width:100%;border:1px solid #29343e;border-radius:4px;background:#0a0f14;color:var(--text);padding:13px;outline:none;font:14px inherit}.loginCard input:focus{border-color:var(--accent)}
+.loginCard button{border:0;cursor:pointer;margin-top:5px}.loginCard button:disabled{opacity:.65}.loginError{color:#ff9b9b!important;font-size:12px;margin:0!important;text-align:center}.backLink{display:block;color:var(--muted);font-size:11px;text-align:center;margin-top:25px}.backLink:hover{color:var(--accent)}
+@media(max-width:620px){.loginCard{padding:34px 22px}.loginCard h1{font-size:38px}}

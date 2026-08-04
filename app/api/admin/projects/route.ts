@@ -1,7 +1,7 @@
 import { getDb } from "../../../../db";
 import { projects } from "../../../../db/schema";
 import { getAllProjects } from "../../../projects";
-import { isAdmin } from "../../../chatgpt-auth";
+import { isAdmin } from "../../../admin-auth";
 
 const categories = new Set(["odoo", "web", "ai"]);
 

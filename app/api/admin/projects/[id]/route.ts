@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "../../../../../db";
 import { projects } from "../../../../../db/schema";
-import { isAdmin } from "../../../../chatgpt-auth";
+import { isAdmin } from "../../../../admin-auth";
 import { clean } from "../route";
 
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {

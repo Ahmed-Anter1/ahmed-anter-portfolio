@@ -20,13 +20,14 @@ test("dashboard and write endpoints require the server-side admin check", async 
     readFile(new URL("app/admin/page.tsx", root), "utf8"),
     readFile(new URL("app/api/admin/projects/route.ts", root), "utf8"),
     readFile(new URL("app/api/admin/projects/[id]/route.ts", root), "utf8"),
-    readFile(new URL("app/chatgpt-auth.ts", root), "utf8"),
+    readFile(new URL("app/admin-auth.ts", root), "utf8"),
   ]);
   assert.match(dashboard, /requireAdmin/);
   assert.match(collectionRoute, /isAdmin/);
   assert.match(itemRoute, /isAdmin/);
-  assert.match(auth, /oai-authenticated-user-email/);
-  assert.match(auth, /ADMIN_EMAILS/);
+  assert.match(auth, /ADMIN_PASSWORD_HASH/);
+  assert.match(auth, /portfolio_admin_session/);
+  assert.doesNotMatch(auth, /anterahmed818|Aa162200/);
 });
 
 test("initial migration includes the current portfolio projects", async () => {

@@ -41,9 +41,13 @@ export default function AdminDashboard({ displayName }: { displayName: string })
     const response = await fetch(`/api/admin/projects/${item.id}`, { method: "DELETE" });
     if (response.ok) { setMessage("Project deleted."); await load(); } else setMessage("Could not delete the project.");
   }
+  async function signOut() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    window.location.href = "/admin/login";
+  }
 
   return <main className="adminPage">
-    <header className="adminTop"><a className="brand" href="/"><span>AA</span><strong>Portfolio Admin</strong></a><div><small>Signed in as {displayName}</small><a href="/signout-with-chatgpt?return_to=/">Sign out</a></div></header>
+    <header className="adminTop"><a className="brand" href="/"><span>AA</span><strong>Portfolio Admin</strong></a><div><small>Signed in as {displayName}</small><button type="button" onClick={() => void signOut()}>Sign out</button></div></header>
     <section className="adminHero"><div><p className="eyebrow"><span /> Private dashboard</p><h1>Manage your portfolio.</h1><p>Add a project once and publish it instantly across your public portfolio.</p></div><div className="adminStats"><div><strong>{counts.all}</strong><span>Total</span></div><div><strong>{counts.live}</strong><span>Published</span></div><div><strong>{counts.drafts}</strong><span>Drafts</span></div></div></section>
     <section className="adminWorkspace">
       <form className="projectForm" onSubmit={save}>

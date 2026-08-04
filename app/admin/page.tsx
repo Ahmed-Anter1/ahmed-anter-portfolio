@@ -1,9 +1,9 @@
-import { requireAdmin } from "../chatgpt-auth";
+import { requireAdmin } from "../admin-auth";
 import AdminDashboard from "./AdminDashboard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const user = await requireAdmin("/admin");
-  return <AdminDashboard displayName={user.displayName} />;
+  await requireAdmin();
+  return <AdminDashboard displayName="Ahmed Anter" />;
 }
