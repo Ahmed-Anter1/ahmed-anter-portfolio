@@ -4,33 +4,24 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("portfolio reads published projects from durable storage", async () => {
-  const [page, schema, hosting] = await Promise.all([
+test("portfolio reads published projects from Supabase", async () => {
+  const [page, projects, client] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
-    readFile(new URL("db/schema.ts", root), "utf8"),
-    readFile(new URL(".openai/hosting.json", root), "utf8"),
+    readFile(new URL("app/projects.ts", root), "utf8"),
+    readFile(new URL("app/supabase.ts", root), "utf8"),
   ]);
   assert.match(page, /getPublishedProjects/);
-  assert.match(schema, /sqliteTable\("projects"/);
-  assert.equal(JSON.parse(hosting).d1, "DB");
+  assert.match(projects, /from\("projects"\)/);
+  assert.match(client, /NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY/);
 });
 
-test("dashboard and write endpoints require the server-side admin check", async () => {
-  const [dashboard, collectionRoute, itemRoute, auth] = await Promise.all([
-    readFile(new URL("app/admin/page.tsx", root), "utf8"),
-    readFile(new URL("app/api/admin/projects/route.ts", root), "utf8"),
-    readFile(new URL("app/api/admin/projects/[id]/route.ts", root), "utf8"),
-    readFile(new URL("app/admin-auth.ts", root), "utf8"),
+test("dashboard uses authenticated Supabase operations", async () => {
+  const [dashboard, login] = await Promise.all([
+    readFile(new URL("app/admin/AdminDashboard.tsx", root), "utf8"),
+    readFile(new URL("app/admin/login/LoginForm.tsx", root), "utf8"),
   ]);
-  assert.match(dashboard, /requireAdmin/);
-  assert.match(collectionRoute, /isAdmin/);
-  assert.match(itemRoute, /isAdmin/);
-  assert.match(auth, /ADMIN_PASSWORD_HASH/);
-  assert.match(auth, /portfolio_admin_session/);
-  assert.doesNotMatch(auth, /anterahmed818|Aa162200/);
-});
-
-test("initial migration includes the current portfolio projects", async () => {
-  const migration = await readFile(new URL("drizzle/0000_flashy_killmonger.sql", root), "utf8");
-  for (const title of ["Sale Stock Guard", "Customer Statement", "HR Management & Time Tracking System", "MAISYS — Medical AI System"]) assert.match(migration, new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(dashboard, /auth\.getSession/);
+  assert.match(dashboard, /auth\.signOut/);
+  assert.match(login, /signInWithPassword/);
+  assert.doesNotMatch(dashboard + login, /ADMIN_PASSWORD_HASH|service_role/);
 });

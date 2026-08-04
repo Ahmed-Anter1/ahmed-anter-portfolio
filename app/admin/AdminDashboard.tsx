@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { getSupabase } from "../supabase";
+import { mapProject } from "../projects";
 
 type Project = { id: number; title: string; category: "odoo" | "web" | "ai"; label: string; description: string; stack: string[]; repositoryUrl: string; liveUrl: string; imageUrl: string; featured: boolean; published: boolean; sortOrder: number };
 type Draft = Omit<Project, "id" | "stack"> & { technologies: string };
@@ -15,9 +17,12 @@ export default function AdminDashboard({ displayName }: { displayName: string })
 
   const load = useCallback(async () => {
     setBusy(true);
-    const response = await fetch("/api/admin/projects", { cache: "no-store" });
-    const data = await response.json();
-    if (response.ok) setItems(data.projects); else setMessage(data.error ?? "Could not load projects.");
+    const supabase = getSupabase();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = "/admin/login"; return; }
+    const { data, error } = await supabase.from("projects").select("*").order("sort_order").order("id");
+    if (!error) setItems((data ?? []).map((row) => mapProject(row) as Project));
+    else setMessage(error.message || "Could not load projects.");
     setBusy(false);
   }, []);
   useEffect(() => { void load(); }, [load]);
@@ -31,18 +36,24 @@ export default function AdminDashboard({ displayName }: { displayName: string })
   function reset() { setEditingId(null); setDraft(empty); setMessage(""); }
   async function save(event: FormEvent) {
     event.preventDefault(); setBusy(true); setMessage("");
-    const response = await fetch(editingId ? `/api/admin/projects/${editingId}` : "/api/admin/projects", { method: editingId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(draft) });
-    const data = response.status === 204 ? {} : await response.json();
-    if (response.ok) { setMessage(editingId ? "Project updated." : "Project added."); reset(); await load(); }
-    else { setMessage(data.error ?? "Could not save the project."); setBusy(false); }
+    const values = {
+      title: draft.title.trim(), category: draft.category, label: draft.label.trim(), description: draft.description.trim(),
+      technologies: draft.technologies.split(",").map((item) => item.trim()).filter(Boolean),
+      repository_url: draft.repositoryUrl.trim(), live_url: draft.liveUrl.trim(), image_url: draft.imageUrl.trim(),
+      featured: draft.featured, published: draft.published, sort_order: draft.sortOrder, updated_at: new Date().toISOString(),
+    };
+    const query = editingId ? getSupabase().from("projects").update(values).eq("id", editingId) : getSupabase().from("projects").insert(values);
+    const { error } = await query;
+    if (!error) { setMessage(editingId ? "Project updated." : "Project added."); reset(); await load(); }
+    else { setMessage(error.message || "Could not save the project."); setBusy(false); }
   }
   async function remove(item: Project) {
     if (!confirm(`Delete “${item.title}”?`)) return;
-    const response = await fetch(`/api/admin/projects/${item.id}`, { method: "DELETE" });
-    if (response.ok) { setMessage("Project deleted."); await load(); } else setMessage("Could not delete the project.");
+    const { error } = await getSupabase().from("projects").delete().eq("id", item.id);
+    if (!error) { setMessage("Project deleted."); await load(); } else setMessage(error.message || "Could not delete the project.");
   }
   async function signOut() {
-    await fetch("/api/admin/logout", { method: "POST" });
+    await getSupabase().auth.signOut();
     window.location.href = "/admin/login";
   }
 
