@@ -17,13 +17,19 @@ export default function AdminDashboard({ displayName }: { displayName: string })
 
   const load = useCallback(async () => {
     setBusy(true);
-    const supabase = getSupabase();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = "/admin/login"; return; }
-    const { data, error } = await supabase.from("projects").select("*").order("sort_order").order("id");
-    if (!error) setItems((data ?? []).map((row) => mapProject(row) as Project));
-    else setMessage(error.message || "Could not load projects.");
-    setBusy(false);
+    setMessage("");
+    try {
+      const supabase = getSupabase();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) { window.location.replace("/admin/login"); return; }
+      const { data, error } = await supabase.from("projects").select("*").order("sort_order").order("id");
+      if (error) throw error;
+      setItems((data ?? []).map((row) => mapProject(row) as Project));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not load projects. Please refresh and try again.");
+    } finally {
+      setBusy(false);
+    }
   }, []);
   useEffect(() => { void load(); }, [load]);
   const counts = useMemo(() => ({ all: items.length, live: items.filter((item) => item.published).length, drafts: items.filter((item) => !item.published).length }), [items]);
