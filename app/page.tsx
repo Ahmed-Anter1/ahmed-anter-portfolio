@@ -51,6 +51,15 @@ const fallbackFeaturedProjects = [
   },
 ];
 
+const defaultProjectImages: Record<string, string> = {
+  "Sale Stock Guard": "/project-covers/sale-stock-guard.webp",
+  "Customer Statement": "/project-covers/customer-statement.webp",
+  "MRP Batch Scaling": "/project-covers/mrp-batch-scaling.webp",
+  "WhatsApp Document Sharing": "/project-covers/whatsapp-document-sharing.webp",
+  "Serial Quotation Workflow": "/project-covers/serial-quotation-workflow.webp",
+  "Automated Sales Returns": "/project-covers/automated-sales-returns.webp",
+};
+
 const caseStudies = [
   "Sales, Inventory & Accounting Automation",
   "Multi-Pricelist & UoM Pricing",
@@ -128,7 +137,7 @@ export default async function Home() {
   const odooProjects = storedProjects.filter((item) => item.category === "odoo");
   const managedWebProjects = storedProjects.filter((item) => item.category === "web");
   const aiProjects = storedProjects.filter((item) => item.category === "ai");
-  const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: "" }));
+  const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "" })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "" }));
   const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: "" }));
   return (
     <main>
