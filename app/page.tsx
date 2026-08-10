@@ -301,7 +301,7 @@ export default async function Home() {
         <h2>Have an Odoo challenge worth solving?</h2>
         <p>I&apos;m open to Odoo Developer opportunities in Egypt, Saudi Arabia, the UAE, and remote teams.</p>
         <div className="heroActions">
-          <a className="button primary" href="mailto:anterahmed818@gmail.com">Email me <span>↗</span></a>
+          <a className="button primary" href="mailto:anterahmed818@gmail.com">anterahmed818@gmail.com <span>↗</span></a>
           <a className="button secondary" href="https://www.linkedin.com/in/ahmed-anter-dev" target="_blank" rel="noreferrer">LinkedIn ↗</a>
         </div>
       </section>
