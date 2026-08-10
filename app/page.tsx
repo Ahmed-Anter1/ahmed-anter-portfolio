@@ -58,6 +58,13 @@ const defaultProjectImages: Record<string, string> = {
   "WhatsApp Document Sharing": "/project-covers/whatsapp-document-sharing.webp",
   "Serial Quotation Workflow": "/project-covers/serial-quotation-workflow.webp",
   "Automated Sales Returns": "/project-covers/automated-sales-returns.webp",
+  "HR Management & Time Tracking System": "/project-covers/hr-management-time-tracking.webp",
+  "E-Commerce API & Dashboard": "/project-covers/ecommerce-api-dashboard.webp",
+  "Nafsyetak Clinic Frontend": "/project-covers/nafsyetak-clinic-frontend.webp",
+  "Book Management API": "/project-covers/book-management-api.webp",
+  "MAISYS — Medical AI System": "/project-covers/maisys-medical-ai.webp",
+  "MAISYS - Medical AI System": "/project-covers/maisys-medical-ai.webp",
+  "MAISYS": "/project-covers/maisys-medical-ai.webp",
 };
 
 const caseStudies = [
@@ -138,7 +145,7 @@ export default async function Home() {
   const managedWebProjects = storedProjects.filter((item) => item.category === "web");
   const aiProjects = storedProjects.filter((item) => item.category === "ai");
   const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "" })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "" }));
-  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: "" }));
+  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "" })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "" }));
   return (
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
@@ -248,7 +255,7 @@ export default async function Home() {
         </div>
         <div className="webGrid">
           {aiProjects.map((project, index) => <article className="webCard" key={project.id}>
-            {project.imageUrl && <div className="projectMedia"><img src={project.imageUrl} alt={`${project.title} screenshot`} loading="lazy" /></div>}
+            {(project.imageUrl || defaultProjectImages[project.title]) && <div className="projectMedia"><img src={project.imageUrl || defaultProjectImages[project.title]} alt={`${project.title} project cover`} loading="lazy" /></div>}
             <div className="webCardTop"><span>AI / {String(index + 1).padStart(2, "0")}</span><small>{project.label}</small></div>
             <h3>{project.title}</h3><p>{project.description}</p>
             <ul>{project.stack.map((item) => <li key={item}>{item}</li>)}</ul>
