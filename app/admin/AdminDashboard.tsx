@@ -13,7 +13,53 @@ export default function AdminDashboard({ displayName }: { displayName: string })
   const [draft, setDraft] = useState<Draft>(empty);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [busy, setBusy] = useState(true);
+  const [imageBusy, setImageBusy] = useState(false);
   const [message, setMessage] = useState("");
+
+  async function prepareImage(file: File) {
+    if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+    if (file.size > 8 * 1024 * 1024) throw new Error("The source image must be smaller than 8 MB.");
+
+    const source = URL.createObjectURL(file);
+    try {
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error("Could not read this image."));
+        element.src = source;
+      });
+      const maxWidth = 1200;
+      const maxHeight = 675;
+      const scale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image processing is unavailable in this browser.");
+      context.drawImage(image, 0, 0, width, height);
+      const result = canvas.toDataURL("image/webp", 0.82);
+      if (result.length > 900_000) throw new Error("The optimized image is still too large. Choose a smaller screenshot.");
+      return result;
+    } finally {
+      URL.revokeObjectURL(source);
+    }
+  }
+
+  async function chooseImage(file?: File) {
+    if (!file) return;
+    setImageBusy(true);
+    setMessage("");
+    try {
+      const imageUrl = await prepareImage(file);
+      setDraft((current) => ({ ...current, imageUrl }));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not process this image.");
+    } finally {
+      setImageBusy(false);
+    }
+  }
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -74,9 +120,11 @@ export default function AdminDashboard({ displayName }: { displayName: string })
         <label>Description<textarea required rows={5} value={draft.description} onChange={(e) => setDraft({...draft, description: e.target.value})} placeholder="What the project solves and how it helps..." /></label>
         <label>Technologies <small>Separate with commas</small><input value={draft.technologies} onChange={(e) => setDraft({...draft, technologies: e.target.value})} placeholder="Odoo 18, Python, QWeb" /></label>
         <label>GitHub repository<input type="url" value={draft.repositoryUrl} onChange={(e) => setDraft({...draft, repositoryUrl: e.target.value})} placeholder="https://github.com/..." /></label>
-        <div className="formRow"><label>Live URL<input type="url" value={draft.liveUrl} onChange={(e) => setDraft({...draft, liveUrl: e.target.value})} placeholder="https://..." /></label><label>Image URL<input type="url" value={draft.imageUrl} onChange={(e) => setDraft({...draft, imageUrl: e.target.value})} placeholder="https://..." /></label></div>
+        <label className="imageField">Project image <small>JPG, PNG or WebP · automatically optimized</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => void chooseImage(e.target.files?.[0])} disabled={imageBusy} /></label>
+        {draft.imageUrl && <div className="imagePreview"><img src={draft.imageUrl} alt="Project preview" /><button type="button" onClick={() => setDraft({...draft, imageUrl: ""})}>Remove image</button></div>}
+        <div className="formRow"><label>Live URL<input type="url" value={draft.liveUrl} onChange={(e) => setDraft({...draft, liveUrl: e.target.value})} placeholder="https://..." /></label><label>Or paste image URL<input type="text" value={draft.imageUrl.startsWith("data:") ? "Uploaded image ready" : draft.imageUrl} onChange={(e) => setDraft({...draft, imageUrl: e.target.value})} disabled={draft.imageUrl.startsWith("data:")} placeholder="https://..." /></label></div>
         <div className="formRow"><label>Display order<input type="number" value={draft.sortOrder} onChange={(e) => setDraft({...draft, sortOrder: Number(e.target.value)})} /></label><div className="checkGroup"><label><input type="checkbox" checked={draft.featured} onChange={(e) => setDraft({...draft, featured: e.target.checked})} /> Featured</label><label><input type="checkbox" checked={draft.published} onChange={(e) => setDraft({...draft, published: e.target.checked})} /> Published</label></div></div>
-        <button className="button primary" disabled={busy}>{busy ? "Saving..." : editingId ? "Save changes" : "Add project"}</button>{message && <p className="formMessage" role="status">{message}</p>}
+        <button className="button primary" disabled={busy || imageBusy}>{imageBusy ? "Optimizing image..." : busy ? "Saving..." : editingId ? "Save changes" : "Add project"}</button>{message && <p className="formMessage" role="status">{message}</p>}
       </form>
       <div className="adminList"><div className="listHead"><div><small>YOUR WORK</small><h2>All projects</h2></div><button onClick={() => void load()} disabled={busy}>Refresh</button></div>{busy && !items.length ? <p className="emptyState">Loading your projects...</p> : items.map((item) => <article className="adminProject" key={item.id}><div className="adminProjectTop"><span className={`status ${item.published ? "live" : "draft"}`}>{item.published ? "Published" : "Draft"}</span><small>{item.category.toUpperCase()} · #{item.sortOrder}</small></div><h3>{item.title}</h3><p>{item.description}</p><div className="adminTags">{item.stack.map((tag) => <span key={tag}>{tag}</span>)}</div><div className="adminActions"><button onClick={() => edit(item)}>Edit</button><button className="danger" onClick={() => void remove(item)}>Delete</button></div></article>)}</div>
     </section>

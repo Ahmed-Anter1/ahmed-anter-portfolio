@@ -20,7 +20,7 @@ test("dashboard uses authenticated Supabase operations", async () => {
     readFile(new URL("app/admin/AdminDashboard.tsx", root), "utf8"),
     readFile(new URL("app/admin/login/LoginForm.tsx", root), "utf8"),
   ]);
-  assert.match(dashboard, /auth\.getSession/);
+  assert.match(dashboard, /auth\.getUser/);
   assert.match(dashboard, /auth\.signOut/);
   assert.match(login, /signInWithPassword/);
   assert.doesNotMatch(dashboard + login, /ADMIN_PASSWORD_HASH|service_role/);
