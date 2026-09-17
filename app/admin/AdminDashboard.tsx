@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { getSupabase } from "../supabase";
 import { mapProject } from "../projects";
 
@@ -67,7 +68,7 @@ export default function AdminDashboard({ displayName }: { displayName: string })
     try {
       const supabase = getSupabase();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) { window.location.replace("/admin/login"); return; }
+      if (authError || !user) { window.location.replace("/portfolio-studio"); return; }
       const { data, error } = await supabase.from("projects").select("*").order("sort_order").order("id");
       if (error) throw error;
       setItems((data ?? []).map((row) => mapProject(row) as Project));
@@ -77,7 +78,10 @@ export default function AdminDashboard({ displayName }: { displayName: string })
       setBusy(false);
     }
   }, []);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
+  }, [load]);
   const counts = useMemo(() => ({ all: items.length, live: items.filter((item) => item.published).length, drafts: items.filter((item) => !item.published).length }), [items]);
 
   function edit(item: Project) {
@@ -106,11 +110,11 @@ export default function AdminDashboard({ displayName }: { displayName: string })
   }
   async function signOut() {
     await getSupabase().auth.signOut();
-    window.location.href = "/admin/login";
+    window.location.replace("/portfolio-studio");
   }
 
   return <main className="adminPage">
-    <header className="adminTop"><a className="brand" href="/"><span>AA</span><strong>Portfolio Admin</strong></a><div><small>Signed in as {displayName}</small><button type="button" onClick={() => void signOut()}>Sign out</button></div></header>
+    <header className="adminTop"><Link className="brand" href="/"><span>AA</span><strong>Portfolio Admin</strong></Link><div><small>Signed in as {displayName}</small><button type="button" onClick={() => void signOut()}>Sign out</button></div></header>
     <section className="adminHero"><div><p className="eyebrow"><span /> Private dashboard</p><h1>Manage your portfolio.</h1><p>Add a project once and publish it instantly across your public portfolio.</p></div><div className="adminStats"><div><strong>{counts.all}</strong><span>Total</span></div><div><strong>{counts.live}</strong><span>Published</span></div><div><strong>{counts.drafts}</strong><span>Drafts</span></div></div></section>
     <section className="adminWorkspace">
       <form className="projectForm" onSubmit={save}>

@@ -23,5 +23,7 @@ test("dashboard uses authenticated Supabase operations", async () => {
   assert.match(dashboard, /auth\.getUser/);
   assert.match(dashboard, /auth\.signOut/);
   assert.match(login, /signInWithPassword/);
+  assert.doesNotMatch(login, /name="email"|First-time setup|auth\.signUp/);
+  assert.match(login, /portfolio-studio\/dashboard/);
   assert.doesNotMatch(dashboard + login, /ADMIN_PASSWORD_HASH|service_role/);
 });

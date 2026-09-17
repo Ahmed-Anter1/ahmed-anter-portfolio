@@ -1,7 +1,7 @@
-import LoginForm from "./LoginForm";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLoginPage() {
-  return <main className="adminLoginPage"><LoginForm /></main>;
+  redirect("/portfolio-studio");
 }
