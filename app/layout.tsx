@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Ahmed Anter | Odoo & Software Developer",
   description: "Software development portfolio featuring Odoo ERP automation, Node.js backend systems, React applications, integrations, reporting, and AI work.",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: { icon: "/browser-logo.svg", shortcut: "/browser-logo.svg", apple: "/browser-logo.svg" },
   openGraph: {
     title: "Ahmed Anter | Odoo & Software Developer",
     description: "Odoo ERP automation, Node.js backend systems, React applications, and AI work.",
