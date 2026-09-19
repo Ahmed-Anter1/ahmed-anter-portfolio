@@ -35,7 +35,14 @@ export default function ProjectVisual({ title, category, label, imageUrl = "" }:
   if (isCustomImage) return <div className="projectMedia"><img src={imageUrl} alt={`${title} screenshot`} loading="lazy" /></div>;
 
   const preview = previews[title] ?? fallback;
-  return <div className={`projectMedia projectPreview preview-${category}`} aria-label={`${title} interface preview`}>
+  if (category === "ai") return <AiPreview title={title} label={label} />;
+  if (category === "web" && title.includes("API")) return <ApiPreview title={title} preview={preview} />;
+  if (category === "web") return <WebAppPreview title={title} label={label} preview={preview} />;
+  return <OdooPreview title={title} label={label} preview={preview} />;
+}
+
+function OdooPreview({ title, label, preview }: { title: string; label: string; preview: PreviewConfig }) {
+  return <div className="projectMedia projectPreview preview-odoo" aria-label={`${title} Odoo interface preview`}>
     <div className="previewTopbar"><strong>{preview.app}</strong><span>{preview.section}</span><i>•••</i></div>
     <div className="previewWorkspace">
       <aside><b>{title.slice(0, 1)}</b><span className="active"/><span/><span/><span/></aside>
@@ -46,6 +53,53 @@ export default function ProjectVisual({ title, category, label, imageUrl = "" }:
           <div className="previewRow previewHead">{preview.columns.map((column) => <span key={column}>{column}</span>)}</div>
           {preview.rows.map((row) => <div className="previewRow" key={row.join("")}><span>{row[0]}</span><span>{row[1]}</span><span className="previewStatus">{row[2]}</span></div>)}
         </div>
+      </section>
+    </div>
+  </div>;
+}
+
+function WebAppPreview({ title, label, preview }: { title: string; label: string; preview: PreviewConfig }) {
+  return <div className="projectMedia webAppPreview" aria-label={`${title} web application preview`}>
+    <div className="browserBar"><span className="browserDots"><i/><i/><i/></span><small>app.local/dashboard</small><b>↗</b></div>
+    <div className="webAppBody">
+      <nav><strong>{preview.app}</strong><span className="selected">Overview</span><span>Activity</span><span>Reports</span></nav>
+      <section>
+        <header><div><small>{label}</small><b>{title}</b></div><em>{preview.action}</em></header>
+        <div className="webAppMetrics">{preview.stats.map(([name, value]) => <div key={name}><span>{name}</span><strong>{value}</strong></div>)}</div>
+        <div className="webAppContent">
+          <div className="miniChart"><span style={{height:"32%"}}/><span style={{height:"48%"}}/><span style={{height:"40%"}}/><span style={{height:"67%"}}/><span style={{height:"57%"}}/><span style={{height:"82%"}}/><span style={{height:"72%"}}/></div>
+          <div className="activityList">{preview.rows.map((row) => <div key={row.join("")}><b>{row[0]}</b><span>{row[1]}</span><em>{row[2]}</em></div>)}</div>
+        </div>
+      </section>
+    </div>
+  </div>;
+}
+
+function ApiPreview({ title, preview }: { title: string; preview: PreviewConfig }) {
+  const endpoint = title.startsWith("Book") ? "/api/books" : "/api/orders";
+  return <div className="projectMedia apiPreview" aria-label={`${title} API console preview`}>
+    <div className="apiTop"><strong>{preview.app}</strong><span>API Console</span><i>development</i></div>
+    <div className="apiWorkspace">
+      <aside><small>COLLECTIONS</small><b>Authentication</b><b className="active">{title.startsWith("Book") ? "Books" : "Orders"}</b><b>Users</b></aside>
+      <section>
+        <div className="requestLine"><strong>GET</strong><span>{endpoint}</span><em>Send</em></div>
+        <div className="apiTabs"><b>Body</b><span>Headers</span><span>Tests</span><i>200 OK · 84 ms</i></div>
+        <pre>{`{\n  "success": true,\n  "count": 3,\n  "data": [ ... ]\n}`}</pre>
+      </section>
+    </div>
+  </div>;
+}
+
+function AiPreview({ title, label }: { title: string; label: string }) {
+  return <div className="projectMedia aiWorkspace" aria-label={`${title} medical AI workspace preview`}>
+    <div className="aiTop"><strong>MAISYS</strong><span>{label}</span><i>● System ready</i></div>
+    <div className="aiBody">
+      <aside><small>MEDICAL TOOLS</small><b className="active">Medical chat</b><b>Lab explainer</b><b>Symptoms</b><b>Drug checker</b><b>Research papers</b></aside>
+      <section>
+        <header><div><small>ASSISTANT SESSION</small><strong>Medical information workspace</strong></div><span>New session</span></header>
+        <div className="aiMessage userMessage">Explain these lab results in simple terms.</div>
+        <div className="aiMessage assistantMessage"><b>MA</b><p>I can help explain the values and highlight questions to discuss with your doctor.</p></div>
+        <div className="aiInput"><span>Ask a medical question...</span><b>↑</b></div>
       </section>
     </div>
   </div>;
