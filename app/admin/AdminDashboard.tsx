@@ -2,8 +2,6 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getSupabase } from "../supabase";
-import { mapProject } from "../projects";
 
 type Project = { id: number; title: string; category: "odoo" | "web" | "ai"; label: string; description: string; stack: string[]; repositoryUrl: string; liveUrl: string; imageUrl: string; featured: boolean; published: boolean; sortOrder: number };
 type Draft = Omit<Project, "id" | "stack"> & { technologies: string };
@@ -66,12 +64,11 @@ export default function AdminDashboard({ displayName }: { displayName: string })
     setBusy(true);
     setMessage("");
     try {
-      const supabase = getSupabase();
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) { window.location.replace("/portfolio-studio"); return; }
-      const { data, error } = await supabase.from("projects").select("*").order("sort_order").order("id");
-      if (error) throw error;
-      setItems((data ?? []).map((row) => mapProject(row) as Project));
+      const response = await fetch("/api/admin/projects", { cache: "no-store" });
+      if (response.status === 401) { window.location.replace("/portfolio-studio"); return; }
+      const data = await response.json().catch(() => []);
+      if (!response.ok) throw new Error(data.error || "Could not load projects.");
+      setItems(data as Project[]);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not load projects. Please refresh and try again.");
     } finally {
@@ -94,22 +91,22 @@ export default function AdminDashboard({ displayName }: { displayName: string })
     event.preventDefault(); setBusy(true); setMessage("");
     const values = {
       title: draft.title.trim(), category: draft.category, label: draft.label.trim(), description: draft.description.trim(),
-      technologies: draft.technologies.split(",").map((item) => item.trim()).filter(Boolean),
-      repository_url: draft.repositoryUrl.trim(), live_url: draft.liveUrl.trim(), image_url: draft.imageUrl.trim(),
-      featured: draft.featured, published: draft.published, sort_order: draft.sortOrder, updated_at: new Date().toISOString(),
+      technologies: draft.technologies.split(",").map((item) => item.trim()).filter(Boolean), repositoryUrl: draft.repositoryUrl.trim(),
+      liveUrl: draft.liveUrl.trim(), imageUrl: draft.imageUrl.trim(), featured: draft.featured, published: draft.published, sortOrder: draft.sortOrder,
     };
-    const query = editingId ? getSupabase().from("projects").update(values).eq("id", editingId) : getSupabase().from("projects").insert(values);
-    const { error } = await query;
-    if (!error) { setMessage(editingId ? "Project updated." : "Project added."); reset(); await load(); }
-    else { setMessage(error.message || "Could not save the project."); setBusy(false); }
+    const response = await fetch(editingId ? `/api/admin/projects/${editingId}` : "/api/admin/projects", { method: editingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok) { setMessage(editingId ? "Project updated." : "Project added."); reset(); await load(); }
+    else { setMessage(result.error || "Could not save the project."); setBusy(false); }
   }
   async function remove(item: Project) {
     if (!confirm(`Delete “${item.title}”?`)) return;
-    const { error } = await getSupabase().from("projects").delete().eq("id", item.id);
-    if (!error) { setMessage("Project deleted."); await load(); } else setMessage(error.message || "Could not delete the project.");
+    const response = await fetch(`/api/admin/projects/${item.id}`, { method: "DELETE" });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok) { setMessage("Project deleted."); await load(); } else setMessage(result.error || "Could not delete the project.");
   }
   async function signOut() {
-    await getSupabase().auth.signOut();
+    await fetch("/api/admin/logout", { method: "POST" });
     window.location.replace("/portfolio-studio");
   }
 

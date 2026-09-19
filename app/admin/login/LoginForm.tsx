@@ -2,7 +2,6 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { getSupabase } from "../../supabase";
 
 export default function LoginForm() {
   const [busy, setBusy] = useState(false);
@@ -14,13 +13,9 @@ export default function LoginForm() {
     const password = String(form.get("password"));
     if (!password) { setError("Enter your password."); setBusy(false); return; }
 
-    const { error: loginError } = await getSupabase().auth.signInWithPassword({
-      email: "anterahmed818@gmail.com",
-      password,
-    });
-
-    if (!loginError) window.location.replace("/portfolio-studio/dashboard");
-    else { setError("Incorrect password. Please try again."); setBusy(false); }
+    const response = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
+    if (response.ok) window.location.replace("/portfolio-studio/dashboard");
+    else { const result = await response.json().catch(() => ({})); setError(result.error || "Incorrect password. Please try again."); setBusy(false); }
   }
 
   return <section className="loginCard">
