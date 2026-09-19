@@ -1,4 +1,5 @@
 import { getPublishedProjects } from "./projects";
+import ProjectVisual from "./ProjectVisual";
 
 const fallbackFeaturedProjects = [
   {
@@ -144,8 +145,8 @@ export default async function Home() {
   const odooProjects = storedProjects.filter((item) => item.category === "odoo");
   const managedWebProjects = storedProjects.filter((item) => item.category === "web");
   const aiProjects = storedProjects.filter((item) => item.category === "ai");
-  const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "" })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "" }));
-  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "" })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "" }));
+  const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "", category: "odoo" as const })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "", category: "odoo" as const }));
+  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "", category: "web" as const })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "", category: "web" as const }));
   return (
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
@@ -207,7 +208,7 @@ export default async function Home() {
         <div className="projectGrid">
           {visibleOdooProjects.map((project, index) => (
             <article className="projectCard" key={project.title}>
-              {project.imageUrl && <div className="projectMedia"><img src={project.imageUrl} alt={`${project.title} screenshot`} loading="lazy" /></div>}
+              <ProjectVisual title={project.title} category={project.category} label={project.tag} imageUrl={project.imageUrl} />
               <div className="projectNumber">0{index + 1}</div>
               <p className="projectTag">{project.tag}</p>
               <h3>{project.title}</h3>
@@ -237,7 +238,7 @@ export default async function Home() {
         <div className="webGrid">
           {visibleWebProjects.map((project, index) => (
             <article className="webCard" key={project.title}>
-              {project.imageUrl && <div className="projectMedia"><img src={project.imageUrl} alt={`${project.title} screenshot`} loading="lazy" /></div>}
+              <ProjectVisual title={project.title} category={project.category} label={project.type} imageUrl={project.imageUrl} />
               <div className="webCardTop"><span>WEB / 0{index + 1}</span><small>{project.type}</small></div>
               <h3>{project.title}</h3>
               <p>{project.description}</p>
@@ -255,7 +256,7 @@ export default async function Home() {
         </div>
         <div className="webGrid">
           {aiProjects.map((project, index) => <article className="webCard" key={project.id}>
-            {(project.imageUrl || defaultProjectImages[project.title]) && <div className="projectMedia"><img src={project.imageUrl || defaultProjectImages[project.title]} alt={`${project.title} project cover`} loading="lazy" /></div>}
+            <ProjectVisual title={project.title} category="ai" label={project.label} imageUrl={project.imageUrl || defaultProjectImages[project.title]} />
             <div className="webCardTop"><span>AI / {String(index + 1).padStart(2, "0")}</span><small>{project.label}</small></div>
             <h3>{project.title}</h3><p>{project.description}</p>
             <ul>{project.stack.map((item) => <li key={item}>{item}</li>)}</ul>
