@@ -12,6 +12,10 @@
 .webCard ul{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:24px 0}
 .webCard li{border:1px solid var(--line);padding:5px 8px;color:#a8b5b3;font:10px ui-monospace,monospace}
 .webCard>a{margin-top:auto;padding-top:18px;border-top:1px solid var(--line);color:var(--accent);font-size:12px;font-weight:700;display:flex;justify-content:space-between}
+.projectLinks{display:flex;gap:10px;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
+.projectLinks a{flex:1;display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:3px;color:var(--accent);font-size:11px;font-weight:700}
+.projectLinks a:first-child{background:var(--accent);border-color:var(--accent);color:#07110e}
+.projectLinks a:hover{border-color:var(--accent2)}
 .projectMedia{height:170px;margin:-30px -30px 24px;overflow:hidden;border-bottom:1px solid var(--line);background:#08100e}
 .projectCard .projectMedia{margin:-26px -26px 22px}
 .projectMedia img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}

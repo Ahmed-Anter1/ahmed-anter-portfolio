@@ -61,7 +61,7 @@ const defaultProjectImages: Record<string, string> = {
   "Automated Sales Returns": "/project-covers/automated-sales-returns.webp",
   "HR Management & Time Tracking System": "/project-covers/hr-management-time-tracking.webp",
   "E-Commerce API & Dashboard": "/project-covers/ecommerce-api-dashboard.webp",
-  "Nafsyetak Clinic Frontend": "/project-covers/nafsyetak-clinic-frontend.webp",
+  "Nafsyetak Clinic": "/project-covers/nafsyetak-clinic-frontend.webp",
   "Book Management API": "/project-covers/book-management-api.webp",
   "MAISYS — Medical AI System": "/project-covers/maisys-medical-ai.webp",
   "MAISYS - Medical AI System": "/project-covers/maisys-medical-ai.webp",
@@ -92,7 +92,8 @@ const fallbackWebProjects = [
     description:
       "A comprehensive HR platform covering employee records, payroll operations, attendance, reporting, notifications, role-based access, and a companion Electron time-tracking application.",
     stack: ["Node.js", "Express.js", "React", "MongoDB", "Electron", "Socket.IO"],
-    href: "https://github.com/Ahmed-Anter1/HR-System1",
+    repositoryUrl: "https://github.com/Ahmed-Anter1/HR-System1",
+    liveUrl: "",
   },
   {
     title: "E-Commerce API & Dashboard",
@@ -100,15 +101,17 @@ const fallbackWebProjects = [
     description:
       "An e-commerce REST API and React dashboard with authentication, admin and user authorization, product workflows, wishlist management, and an embedded API testing interface.",
     stack: ["Node.js", "Express.js", "MongoDB", "React", "JWT", "Bcrypt"],
-    href: "https://github.com/Ahmed-Anter1/backend-e-commerce",
+    repositoryUrl: "https://github.com/Ahmed-Anter1/backend-e-commerce",
+    liveUrl: "",
   },
   {
-    title: "Nafsyetak Clinic Frontend",
-    type: "React Application",
+    title: "Nafsyetak Clinic",
+    type: "Freelance · Full-Stack Platform",
     description:
-      "A responsive clinic interface with authentication, protected routes, admin navigation, service pages, forms, charts, and an API integration architecture.",
-    stack: ["React 18", "React Router", "Axios", "i18next", "Recharts"],
-    href: "https://github.com/Ahmed-Anter1/Nafsyetak2",
+      "An end-to-end bilingual clinic platform with secure authentication, role-based admin workflows, service and booking management, MongoDB persistence, and protected email-based password recovery.",
+    stack: ["Node.js", "Express.js", "React 18", "MongoDB", "Mongoose", "JWT", "Nodemailer", "Vercel"],
+    repositoryUrl: "https://github.com/Ahmed-Anter1/Nafsyetak-clinc",
+    liveUrl: "https://nafsyetak-clinic.vercel.app",
   },
   {
     title: "Book Management API",
@@ -116,7 +119,8 @@ const fallbackWebProjects = [
     description:
       "A secured CRUD API for managing books and users, including registration, login, password hashing, JWT authentication, MongoDB persistence, and modular controllers.",
     stack: ["Node.js", "Express.js", "MongoDB", "Mongoose", "JWT"],
-    href: "https://github.com/Ahmed-Anter1/Book-Management-with-authentication-App",
+    repositoryUrl: "https://github.com/Ahmed-Anter1/Book-Management-with-authentication-App",
+    liveUrl: "",
   },
 ];
 
@@ -146,7 +150,7 @@ export default async function Home() {
   const managedWebProjects = storedProjects.filter((item) => item.category === "web");
   const aiProjects = storedProjects.filter((item) => item.category === "ai");
   const visibleOdooProjects = databaseAvailable ? odooProjects.map((item) => ({ title: item.title, tag: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "", category: "odoo" as const })) : fallbackFeaturedProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "", category: "odoo" as const }));
-  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, href: item.repositoryUrl || item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "", category: "web" as const })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "", category: "web" as const }));
+  const visibleWebProjects = databaseAvailable ? managedWebProjects.map((item) => ({ title: item.title, type: item.label, description: item.description, stack: item.stack, repositoryUrl: item.repositoryUrl, liveUrl: item.liveUrl, imageUrl: item.imageUrl || defaultProjectImages[item.title] || "", category: "web" as const })) : fallbackWebProjects.map((item) => ({ ...item, imageUrl: defaultProjectImages[item.title] || "", category: "web" as const }));
   return (
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
@@ -243,7 +247,10 @@ export default async function Home() {
               <h3>{project.title}</h3>
               <p>{project.description}</p>
               <ul>{project.stack.map((item) => <li key={item}>{item}</li>)}</ul>
-              <a href={project.href} target="_blank" rel="noreferrer">View repository <span>↗</span></a>
+              <div className="projectLinks">
+                {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noreferrer">Live demo <span>↗</span></a>}
+                {project.repositoryUrl && <a href={project.repositoryUrl} target="_blank" rel="noreferrer">View repository <span>↗</span></a>}
+              </div>
             </article>
           ))}
         </div>

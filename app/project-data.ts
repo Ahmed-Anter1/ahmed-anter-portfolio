@@ -18,8 +18,8 @@ export type PortfolioProject = {
 
 const initialDate = "2026-09-01T00:00:00.000Z";
 
-function project(id: number, title: string, category: PortfolioProject["category"], label: string, description: string, technologies: string[], repositoryUrl: string, imageUrl: string): PortfolioProject {
-  return { id, title, category, label, description, technologies, repositoryUrl, liveUrl: "", imageUrl, featured: true, published: true, sortOrder: id, createdAt: initialDate, updatedAt: initialDate, stack: technologies };
+function project(id: number, title: string, category: PortfolioProject["category"], label: string, description: string, technologies: string[], repositoryUrl: string, imageUrl: string, liveUrl = ""): PortfolioProject {
+  return { id, title, category, label, description, technologies, repositoryUrl, liveUrl, imageUrl, featured: true, published: true, sortOrder: id, createdAt: initialDate, updatedAt: initialDate, stack: technologies };
 }
 
 export const defaultProjects: PortfolioProject[] = [
@@ -31,7 +31,7 @@ export const defaultProjects: PortfolioProject[] = [
   project(6, "Automated Sales Returns", "odoo", "Returns · Accounting", "Coordinates product returns, reverse stock movements, and credit-note preparation through a guided business workflow.", ["Odoo 18", "Stock", "Accounting", "Python"], "https://github.com/Ahmed-Anter1/odoo-automated-sales-returns", "/project-covers/automated-sales-returns.webp"),
   project(7, "HR Management & Time Tracking System", "web", "Full-Stack · Desktop", "A comprehensive HR platform covering employee records, payroll operations, attendance, reporting, notifications, role-based access, and a companion Electron time-tracking application.", ["Node.js", "Express.js", "React", "MongoDB", "Electron", "Socket.IO"], "https://github.com/Ahmed-Anter1/HR-System1", "/project-covers/hr-management-time-tracking.webp"),
   project(8, "E-Commerce API & Dashboard", "web", "Full-Stack Web", "An e-commerce REST API and React dashboard with authentication, admin and user authorization, product workflows, wishlist management, and an embedded API testing interface.", ["Node.js", "Express.js", "MongoDB", "React", "JWT", "Bcrypt"], "https://github.com/Ahmed-Anter1/backend-e-commerce", "/project-covers/ecommerce-api-dashboard.webp"),
-  project(9, "Nafsyetak Clinic Frontend", "web", "React Application", "A responsive clinic interface with authentication, protected routes, admin navigation, service pages, forms, charts, and an API integration architecture.", ["React 18", "React Router", "Axios", "i18next", "Recharts"], "https://github.com/Ahmed-Anter1/Nafsyetak2", "/project-covers/nafsyetak-clinic-frontend.webp"),
+  project(9, "Nafsyetak Clinic", "web", "Freelance · Full-Stack Platform", "An end-to-end bilingual clinic platform with secure authentication, role-based admin workflows, service and booking management, MongoDB persistence, and protected email-based password recovery.", ["Node.js", "Express.js", "React 18", "MongoDB", "Mongoose", "JWT", "Nodemailer", "Vercel"], "https://github.com/Ahmed-Anter1/Nafsyetak-clinc", "/project-covers/nafsyetak-clinic-frontend.webp", "https://nafsyetak-clinic.vercel.app"),
   project(10, "Book Management API", "web", "Backend API", "A secured CRUD API for managing books and users, including registration, login, password hashing, JWT authentication, MongoDB persistence, and modular controllers.", ["Node.js", "Express.js", "MongoDB", "Mongoose", "JWT"], "https://github.com/Ahmed-Anter1/Book-Management-with-authentication-App", "/project-covers/book-management-api.webp"),
   project(11, "MAISYS — Medical AI System", "ai", "Medical AI · Graduation Project", "A medical AI platform combining a medical chatbot, lab-test explanation, symptom checking, drug-interaction guidance, and research-paper assistance.", ["Artificial Intelligence", "Medical NLP", "React", "APIs"], "", "/project-covers/maisys-medical-ai.webp"),
 ];
